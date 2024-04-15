@@ -23,8 +23,8 @@ main:
     call _start
 
 _start:
-    mov r8, 69420
-    call print_int
+    mov r8, -567
+    call print_signed_int
 
     jmp exit
     
