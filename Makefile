@@ -8,6 +8,9 @@ all: prog
 prog:
 	gcc -c main.s && ld -o prog main.o
 
+ls:
+	gcc -c ls.s && ld -o ls.out ls.o
+
 # Rule to clean generated files
 clean:
 	rm -f prog $(OBJ)
