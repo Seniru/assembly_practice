@@ -1,3 +1,5 @@
+# This does not handle errors appropriately
+
 .intel_syntax noprefix
 
 .include "system.s"
@@ -7,8 +9,32 @@
 .global _start
 
 .data
-    pwd: .asciz "Contents of %s\n"
-    newline: .asciz "\n"
+    pwd:        .asciz "Contents of %s\n"
+    newline:    .asciz "\n"
+
+    fifo:       .asciz " (FIFO)"
+        fifo_len = $ - fifo
+
+    chardev:    .asciz " (Char device)"
+        chardev_len = $ - chardev
+
+    dir:        .asciz " (Directory)"
+        dir_len = $ - dir
+
+    blkdev:     .asciz " (Block device)"
+        blkdev_len = $ - blkdev
+
+    regular:    .asciz " (Regular)"
+        regular_len = $ - regular
+
+    symlink:    .asciz " (Symlink)"
+        symlink_len = $ - symlink
+    
+    socket:     .asciz " (Socket)"
+        socket_len = $ - socket
+    
+    unknown:    .asciz " (Unknown type)"
+        unknown_len = $ - unknown
         
 
 .bss
@@ -59,10 +85,10 @@ _start:
     add rdi, rax
 
 print_entries:
-    lodsq       # d_inode
-    lodsq       # d_off
+    lodsq           # d_inode
+    lodsq           # d_off
     mov r10, rax
-    lodsw       # d_reclen
+    lodsw           # d_reclen
     mov r11, rax
 
     # calculate the string length
@@ -79,6 +105,9 @@ print_entries:
 
     lodsb       # padding byte
     lodsb       # d_type
+    mov r12, rax
+    call print_type
+_print_entries_cont:
 
     lea r8, [newline]
     mov r9, 1
@@ -90,3 +119,85 @@ print_entries:
     leave
     jmp exit
 
+print_type:
+    # FIFO
+    cmp r12, 1
+    je print_type_fifo
+
+    # Char dev
+    cmp r12, 2
+    je print_type_chardev
+
+    # Directory
+    cmp r12, 4
+    je print_type_dir
+
+    # Block dev
+    cmp r12, 6
+    je print_type_blockdev
+
+    # Regular
+    cmp r12, 8
+    je print_type_regular
+
+    # Symlink
+    cmp r12, 10
+    je print_type_symlink
+
+    # Socket
+    cmp r12, 12
+    je print_type_socket
+
+    # unknown
+    jmp print_type_unknown
+    
+
+
+
+print_type_fifo:
+    lea r8, [fifo]
+    mov r9, fifo_len
+    call print_string
+    jmp _print_entries_cont
+
+print_type_chardev:
+    lea r8, [chardev]
+    mov r9, chardev_len
+    call print_string
+    jmp _print_entries_cont
+
+print_type_dir:
+    lea r8, [dir]
+    mov r9, dir_len
+    call print_string
+    jmp _print_entries_cont
+
+print_type_blockdev:
+    lea r8, [blkdev]
+    mov r9, blkdev_len
+    call print_string
+    jmp _print_entries_cont
+
+print_type_regular:
+    lea r8, [regular]
+    mov r9, regular_len
+    call print_string
+    jmp _print_entries_cont
+
+print_type_symlink:
+    lea r8, [symlink]
+    mov r9, symlink_len
+    call print_string
+    jmp _print_entries_cont
+
+print_type_socket:
+    lea r8, [socket]
+    mov r9, socket_len
+    call print_string
+    jmp _print_entries_cont
+
+print_type_unknown:
+    lea r8, [unknown]
+    mov r9, unknown_len
+    call print_string
+    jmp _print_entries_cont
