@@ -74,8 +74,8 @@ _start:
 
 
     # print all the entires
+    mov rdi, rax       # fd
     mov rax, 78        # sys_getdents
-    mov rdi, 3         # fd
     lea rsi, [entry]   # *dirent
     mov rdx, 1024      # count
     syscall
