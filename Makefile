@@ -1,5 +1,5 @@
 
-SRC = system.s print.s main.s clock.s ls.s macros.s
+SRC = system.s print.s main.s clock.s ls.s macros.s kb.s
 OBJ = $(SRC:.s=.o)
 OUT = $(SRC:.s=.out)
 # Default target to build the executable 'prog'
@@ -17,6 +17,9 @@ clock:
 
 macros:
 	gcc -c macros.s && ld -o macros.out macros.o
+
+kb:
+	gcc -c kb.s && ld -o kb.out kb.o
 
 # Rule to clean generated files
 clean:
