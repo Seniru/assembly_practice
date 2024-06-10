@@ -3,9 +3,22 @@
 .include "system.s"
 .include "string.s"
 .include "print.s"
+.include "mman.s"
+.include "random.s"
 
 
 .global _start
+
+.macro printr register=rax
+    mov     r8, \register
+    call    print_usigned_int
+.endm
+
+.macro print_newline
+    lea     r8, [newline]
+    mov     r9, 1
+    call    print_string
+.endm
 
 .data
     message:
@@ -13,6 +26,8 @@
         messageLen = $ - message
     name: .asciz "Seniru Pasan"
     formatted_message: .asciz "\n\nHello %s\n==========\nAge - %d\nHeight - %d cm\n"
+    newline: .asciz "\n"
+    n1: .float 255.1
         
 
 
@@ -26,28 +41,11 @@ _start:
     push rbp
     mov rbp, rsp
 
-    # printing a string
-    lea r8, [message]
-    mov r9, messageLen
-    call print_string
+    # call random
+    # printr rax
 
-    # print an unsigned integer
-    mov r8, 420
-    call print_usigned_int
-
-    # print a signed integer
-    mov r8, -500
-    call print_signed_int
-
-    # print formatted string
-    lea rax, [formatted_message]
-    lea rbx, [name]
-
-    push rax
-    push rbx
-    push 21
-    push 100
-    call printf
+    getrandomint        69, 420
+    printr rax
 
     leave
     jmp exit
